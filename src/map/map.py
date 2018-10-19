@@ -9,13 +9,16 @@ class Map:
     """マップクラス"""
 
     def __init__(self):
-        self.stage = self._create_stage(ROOP_MAP_MAKING)
+        self.x = 0                                          # 左上x座標
+        self.y = 0                                          # 左上y座標
+        self.stage = self._create_stage(ROOP_MAP_MAKING)    # 地形データテーブル
         self.trrain_converter = {SEA: load(PATH_SEA).convert(),
                                  SAND: load(PATH_SAND).convert(),
                                  GLASS: load(PATH_GLASS).convert(),
                                  FOREST: load(PATH_FOREST).convert(),
                                  MOUNTAIN: load(PATH_MOUNTAIN).convert(),
                                  RIVER: load(PATH_RIVER).convert()}
+                                                            # 地形インデックスを対応する画像オブジェクトに変換
 
     def _create_stage(self, roop_making):
         """ステージ作成"""
@@ -59,11 +62,24 @@ class Map:
         random_array = np.r_[np.full(counter*3, value), np.full((8-counter)*2, 0)]
 
         return np.random.choice(random_array, 1)
-
     
     def update(self, screen):
         """描画更新"""
-        for r in range(LENGTH_OF_ONE_SIDE):
-            for c in range(LENGTH_OF_ONE_SIDE):
-                terrain = self.stage[r][c]
-                screen.blit(self.trrain_converter[terrain], (c*PIXCEL_OF_ONE_SIDE, r*PIXCEL_OF_ONE_SIDE))
+
+        # マップ移動時に描画が途切れないよう予め1セル多くマップを描画しておく
+        for r in range(N_CELL_RENDER_Y+1):
+            for c in range(N_CELL_RENDER_X+1):
+                # ステージ外を描画する場合、海地形として描画
+                if (r >= self.stage.shape[1]) or (c >= self.stage.shape[0]):
+                    terrain = SEA
+                else:
+                    terrain = self.stage[r][c]
+
+                screen.blit(self.trrain_converter[terrain], (c*PIXCEL_OF_ONE_SIDE-self.x, r*PIXCEL_OF_ONE_SIDE-self.y))
+
+    def move(self, vx, vy):
+        """マップ移動"""
+
+        # 現在描画中の左上の位置を移動させる
+        self.x += vx
+        self.y += vy
