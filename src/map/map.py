@@ -8,7 +8,9 @@ from pygame.image import load
 class Map:
     """マップクラス"""
 
-    def __init__(self):
+    def __init__(self, x, y):
+        self.center_x = x
+        self.center_y = y
         self.stage = self._create_stage(ROOP_MAP_MAKING)    # 地形データテーブル
         self.trrain_converter = {SEA: load(PATH_SEA).convert(),
                                  SAND: load(PATH_SAND).convert(),
@@ -27,10 +29,10 @@ class Map:
                 return pickle.load(f)
 
         # 海と陸の作成
-        stage = np.random.randint(2, size=(LENGTH_OF_ONE_SIDE, LENGTH_OF_ONE_SIDE))
+        stage = np.random.randint(2, size=(STAGE_LENGTH, STAGE_LENGTH))
         for i in range(roop_making):
-            for r in range(LENGTH_OF_ONE_SIDE):
-                for c in range(LENGTH_OF_ONE_SIDE):
+            for r in range(STAGE_LENGTH):
+                for c in range(STAGE_LENGTH):
                     stage[r][c] = self._make_terrain(stage, r, c, SAND)
 
         # ステージのpkl化
@@ -64,18 +66,43 @@ class Map:
     def update(self, screen):
         """描画更新"""
 
-        # マップ移動時に描画が途切れないよう予め1セル多くマップを描画しておく
-        for r in range(N_CELL_RENDER_Y+1):
-            for c in range(N_CELL_RENDER_X+1):
-                # ステージ外を描画する場合、海地形として描画
-                if (r >= self.stage.shape[1]) or (c >= self.stage.shape[0]):
+        # オフセット算出
+        offset_x = self._calc_offset(self.center_x)
+        offset_y = self._calc_offset(self.center_y)
+
+        # 現在セルを基点においたセル単位で2重ループを回しつつ描画設定
+        half_length_of_render_x = int(N_CELL_RENDER_X/2)
+        half_length_of_render_y = int(N_CELL_RENDER_Y/2)
+        for r in range(-1*half_length_of_render_y, half_length_of_render_y):
+            for c in range(-1*half_length_of_render_x, half_length_of_render_x):
+                # 現在処理中のセル座標がステージ外であれば地形は海
+                if self._is_outside_of_stage(c, r):
                     terrain = SEA
                 else:
-                    terrain = self.stage[r][c]
+                    idx_x = int(self.center_x + c)
+                    idx_y = int(self.center_y + r)
+                    terrain = self.stage[idx_x][idx_y]
 
-                screen.blit(self.trrain_converter[terrain], (c*PIXCEL_OF_ONE_SIDE, r*PIXCEL_OF_ONE_SIDE))
+                # 描画設定
+                x = (half_length_of_render_x + c) * PIXCEL_OF_ONE_SIDE - offset_x
+                y = (half_length_of_render_y + r) * PIXCEL_OF_ONE_SIDE - offset_y
+                screen.blit(self.trrain_converter[terrain], (x, y))
 
-    def move(self, vx, vy):
+    def _is_outside_of_stage(self, c, r):
+        """ステージ外かどうか判定"""
+        result = not ((0 < (self.center_x + c) < STAGE_LENGTH) and (0 < (self.center_y + r) < STAGE_LENGTH))
+        return result
+
+    def _calc_offset(self, value):
+        """オフセット値算出"""
+
+        offset = 1 - (value - int(value))
+        if offset == 1:
+            offset = 0
+        return offset
+
+    def move(self, center_point):
         """マップ移動"""
 
-        pass
+        self.center_x = center_point[0]
+        self.center_y = center_point[1]

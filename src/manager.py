@@ -10,8 +10,8 @@ class Manager:
 
     def __init__(self):
         self.screen = pygame.display.set_mode(SCR_RECT.size, DOUBLEBUF | HWSURFACE)
-        self.map = Map()
-        self.player = Player(int(LENGTH_OF_ONE_SIDE/2), int(LENGTH_OF_ONE_SIDE/2))
+        self.player = Player(N_CELL_RENDER_X, N_CELL_RENDER_Y)
+        self.map = Map(N_CELL_RENDER_X, N_CELL_RENDER_Y)
 
     def mainroop(self):
         """メインループ"""
@@ -61,10 +61,10 @@ class Manager:
 
         # 押されているキーに応じてマップ移動
         if keys_pressed[K_LEFT]:
-            self.map.move(-1*SCROLL_SPEED, 0)
+            self.map.move(self.player.move(-1*SCROLL_SPEED, 0))
         if keys_pressed[K_RIGHT]:
-            self.map.move(1*SCROLL_SPEED, 0)
+            self.map.move(self.player.move(1*SCROLL_SPEED, 0))
         if keys_pressed[K_UP]:
-            self.map.move(0, -1*SCROLL_SPEED)
+            self.map.move(self.player.move(0, -1*SCROLL_SPEED))
         if keys_pressed[K_DOWN]:
-            self.map.move(0, 1*SCROLL_SPEED)
+            self.map.move(self.player.move(0, 1*SCROLL_SPEED))
