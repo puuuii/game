@@ -11,7 +11,7 @@ class Manager:
     def __init__(self):
         self.screen = pygame.display.set_mode(SCR_RECT.size, DOUBLEBUF | HWSURFACE)
         self.map = Map()
-        self.player = Player()
+        self.player = Player(int(LENGTH_OF_ONE_SIDE/2), int(LENGTH_OF_ONE_SIDE/2))
 
     def mainroop(self):
         """メインループ"""

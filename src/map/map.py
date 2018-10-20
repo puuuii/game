@@ -9,8 +9,6 @@ class Map:
     """マップクラス"""
 
     def __init__(self):
-        self.x = 0                                          # 左上x座標
-        self.y = 0                                          # 左上y座標
         self.stage = self._create_stage(ROOP_MAP_MAKING)    # 地形データテーブル
         self.trrain_converter = {SEA: load(PATH_SEA).convert(),
                                  SAND: load(PATH_SAND).convert(),
@@ -75,11 +73,9 @@ class Map:
                 else:
                     terrain = self.stage[r][c]
 
-                screen.blit(self.trrain_converter[terrain], (c*PIXCEL_OF_ONE_SIDE-self.x, r*PIXCEL_OF_ONE_SIDE-self.y))
+                screen.blit(self.trrain_converter[terrain], (c*PIXCEL_OF_ONE_SIDE, r*PIXCEL_OF_ONE_SIDE))
 
     def move(self, vx, vy):
         """マップ移動"""
 
-        # 現在描画中の左上の位置を移動させる
-        self.x += vx
-        self.y += vy
+        pass
