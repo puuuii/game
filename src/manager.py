@@ -26,8 +26,9 @@ class Manager:
             # キーハンドル
             self.handle_key()
 
-            # マップ更新
+            # 各種更新更新
             self.map.update(self.screen)
+            self.player.update(self.screen)
 
             # 画面描画
             pygame.display.update()
@@ -61,10 +62,14 @@ class Manager:
 
         # 押されているキーに応じてマップ移動
         if keys_pressed[K_LEFT]:
+            self.player.set_direction(DIRECTION_LEFT)
             self.map.move(self.player.move(-1*SCROLL_SPEED, 0))
         if keys_pressed[K_RIGHT]:
+            self.player.set_direction(DIRECTION_RIGHT)
             self.map.move(self.player.move(1*SCROLL_SPEED, 0))
         if keys_pressed[K_UP]:
+            self.player.set_direction(DIRECTION_UP)
             self.map.move(self.player.move(0, -1*SCROLL_SPEED))
         if keys_pressed[K_DOWN]:
+            self.player.set_direction(DIRECTION_DOWN)
             self.map.move(self.player.move(0, 1*SCROLL_SPEED))

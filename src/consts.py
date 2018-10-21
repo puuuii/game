@@ -32,4 +32,13 @@ LIMIT_RIGHT_IN_CELLS = STAGE_LENGTH - ((SCR_RECT.width / 2) / PIXCEL_OF_ONE_SIDE
 LIMIT_BOTTOM_IN_CELLS = STAGE_LENGTH - ((SCR_RECT.height / 2) / PIXCEL_OF_ONE_SIDE)
 
 # プレーヤー系
-PATH_IMAGE_PLAYER = '../img/player_up.png'
+PATH_IMAGE_PLAYER_UP = '../img/player_up.png'
+PATH_IMAGE_PLAYER_RIGHT = '../img/player_right.png'
+PATH_IMAGE_PLAYER_DOWN = '../img/player_down.png'
+PATH_IMAGE_PLAYER_LEFT = '../img/player_left.png'
+X_PLAYER = SCR_RECT.width / 2
+Y_PLAYER = SCR_RECT.height / 2
+DIRECTION_UP = 0
+DIRECTION_RIGHT = 1
+DIRECTION_DOWN = 2
+DIRECTION_LEFT   = 3
