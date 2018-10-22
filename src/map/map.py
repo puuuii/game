@@ -11,7 +11,7 @@ class Map:
     def __init__(self, x, y):
         self.center_x = x
         self.center_y = y
-        self.stage = self._create_stage(ROOP_MAP_MAKING)    # 地形データテーブル
+        self.stage = self._create_stage()    # 地形データテーブル
         self.trrain_converter = {SEA: load(PATH_SEA).convert(),
                                  SAND: load(PATH_SAND).convert(),
                                  GLASS: load(PATH_GLASS).convert(),
@@ -20,7 +20,7 @@ class Map:
                                  RIVER: load(PATH_RIVER).convert()}
                                                             # 地形インデックスを対応する画像オブジェクトに変換
 
-    def _create_stage(self, roop_making):
+    def _create_stage(self):
         """ステージ作成"""
 
         # すでにステージが存在するならそれを返す
@@ -30,10 +30,22 @@ class Map:
 
         # 海と陸の作成
         stage = np.random.randint(2, size=(STAGE_LENGTH, STAGE_LENGTH))
-        for i in range(roop_making):
+        for i in range(ROOP_SAND_MAKING):
             for r in range(STAGE_LENGTH):
                 for c in range(STAGE_LENGTH):
                     stage[r][c] = self._make_terrain(stage, r, c, SAND)
+
+        # 草原の作成
+        # 海岸は砂場を多くするため周囲を砂で囲っておく
+        stage_glass = np.random.randint(GLASS-1, GLASS+1, size=(STAGE_LENGTH, STAGE_LENGTH))
+        self._surround(stage_glass, BEACH_AREA, SAND)
+        for i in range(ROOP_GLASS_MAKING):
+            for r in range(STAGE_LENGTH):
+                for c in range(STAGE_LENGTH):
+                    stage_glass[r][c] = self._make_terrain(stage_glass, r, c, GLASS)
+        # 草原をステージに反映
+        index = np.where(stage_glass == GLASS)
+        stage[index] = GLASS
 
         # ステージのpkl化
         with open(PATH_STAGE, mode='wb') as f:
@@ -41,8 +53,16 @@ class Map:
 
         return stage
 
+    def _surround(self, stage, witdh, terrain):
+        """ステージを特定の地形で指定分だけ囲う"""
+        stage[:witdh] = terrain
+        stage[-witdh:] = terrain
+        stage[:, :witdh] = terrain
+        stage[:, -witdh:] = terrain
+
     def _make_terrain(self, stage, r, c, value):
         """周囲の地形から特定地形作成"""
+
         # 周囲8セルに特定地形が含まれる数をカウント
         counter = 0
         for i in range(-1, 2):
