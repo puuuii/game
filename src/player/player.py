@@ -21,13 +21,11 @@ class Player:
 
         screen.blit(self.img_list[self.direction], (X_PLAYER, Y_PLAYER))
 
-    def move(self, x, y):
+    def move(self, move_value):
         """移動処理"""
 
-        self.x += x
-        self.y += y
-
-        return (self.x, self.y)
+        self.x += move_value[0]
+        self.y += move_value[1]
 
     def set_direction(self, direction):
         self.direction = direction

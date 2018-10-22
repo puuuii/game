@@ -60,16 +60,22 @@ class Manager:
         """キーハンドル"""
         keys_pressed = pygame.key.get_pressed()
 
-        # 押されているキーに応じてマップ移動
+        # 押されているキーに応じてプレーヤー方向と移動量決定
+        move_value_list = []
         if keys_pressed[K_LEFT]:
             self.player.set_direction(DIRECTION_LEFT)
-            self.map.move(self.player.move(-1*SCROLL_SPEED, 0))
+            move_value_list.append((-1, 0))
         if keys_pressed[K_RIGHT]:
             self.player.set_direction(DIRECTION_RIGHT)
-            self.map.move(self.player.move(1*SCROLL_SPEED, 0))
+            move_value_list.append((1, 0))
         if keys_pressed[K_UP]:
             self.player.set_direction(DIRECTION_UP)
-            self.map.move(self.player.move(0, -1*SCROLL_SPEED))
+            move_value_list.append((0, -1))
         if keys_pressed[K_DOWN]:
             self.player.set_direction(DIRECTION_DOWN)
-            self.map.move(self.player.move(0, 1*SCROLL_SPEED))
+            move_value_list.append((0, 1))
+
+        # 移動可能な場合のみ移動処理
+        for move_value in move_value_list:
+            if self.map.move(move_value):
+                self.player.move(move_value)

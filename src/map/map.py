@@ -101,8 +101,19 @@ class Map:
             offset = 0
         return offset
 
-    def move(self, center_point):
+    def move(self, move_value):
         """マップ移動"""
 
-        self.center_x = center_point[0]
-        self.center_y = center_point[1]
+        target_x = self.center_x + move_value[0]
+        target_y = self.center_y + move_value[1]
+
+        # 水辺は移動不可
+        if (self.stage[target_x][target_y] == SEA)\
+                or (self.stage[target_x][target_y] == RIVER):
+            return False
+
+        self.center_x = target_x
+        self.center_y = target_y
+
+        return True
+
