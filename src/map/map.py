@@ -29,15 +29,33 @@ class Map:
                 return pickle.load(f)
 
         # 海と陸の作成
+        stage = self._create_stage_sand()
+
+        # 草原の作成
+        stage = self._create_stage_glass(stage)
+
+        # ステージのpkl化
+        with open(PATH_STAGE, mode='wb') as f:
+            pickle.dump(stage, f)
+
+        return stage
+
+    def _create_stage_sand(self):
+        """砂地の作成"""
+
         stage = np.random.randint(2, size=(STAGE_LENGTH, STAGE_LENGTH))
         for i in range(ROOP_SAND_MAKING):
             for r in range(STAGE_LENGTH):
                 for c in range(STAGE_LENGTH):
                     stage[r][c] = self._make_terrain(stage, r, c, SAND)
 
-        # 草原の作成
+        return stage
+
+    def _create_stage_glass(self, stage):
+        """草原地帯の作成"""
+
         # 海岸は砂場を多くするため周囲を砂で囲っておく
-        stage_glass = np.random.randint(GLASS-1, GLASS+1, size=(STAGE_LENGTH, STAGE_LENGTH))
+        stage_glass = np.random.randint(GLASS - 1, GLASS + 1, size=(STAGE_LENGTH, STAGE_LENGTH))
         self._surround(stage_glass, BEACH_AREA, SAND)
         for i in range(ROOP_GLASS_MAKING):
             for r in range(STAGE_LENGTH):
@@ -46,10 +64,6 @@ class Map:
         # 草原をステージに反映
         index = np.where(stage_glass == GLASS)
         stage[index] = GLASS
-
-        # ステージのpkl化
-        with open(PATH_STAGE, mode='wb') as f:
-            pickle.dump(stage, f)
 
         return stage
 
