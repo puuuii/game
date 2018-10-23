@@ -64,16 +64,16 @@ class Manager:
         move_value_list = []
         if keys_pressed[K_LEFT]:
             self.player.set_direction(DIRECTION_LEFT)
-            move_value_list.append((-1, 0))
+            move_value_list.append((-1*SCROLL_SPEED, 0))
         if keys_pressed[K_RIGHT]:
             self.player.set_direction(DIRECTION_RIGHT)
-            move_value_list.append((1, 0))
+            move_value_list.append((1*SCROLL_SPEED, 0))
         if keys_pressed[K_UP]:
             self.player.set_direction(DIRECTION_UP)
-            move_value_list.append((0, -1))
+            move_value_list.append((0, -1*SCROLL_SPEED))
         if keys_pressed[K_DOWN]:
             self.player.set_direction(DIRECTION_DOWN)
-            move_value_list.append((0, 1))
+            move_value_list.append((0, 1*SCROLL_SPEED))
 
         # 移動可能な場合のみ移動処理
         for move_value in move_value_list:
