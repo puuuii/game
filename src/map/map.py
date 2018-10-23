@@ -32,7 +32,16 @@ class Map:
         stage = self._create_stage_sand()
 
         # 草原の作成
-        stage = self._create_stage_glass(stage)
+        stage = self._create_stage_option(stage, GLASS, WIDTH_SURROUND_GLASS, ROOP_GLASS_MAKING)
+        
+        # 森の作成
+        stage = self._create_stage_option(stage, FOREST, WIDTH_SURROUND_FOREST, ROOP_FOREST_MAKING)
+
+        # 山の作成
+        stage = self._create_stage_option(stage, MOUNTAIN, WIDTH_SURROUND_MOUNTAIN, ROOP_MOUNTAIN_MAKING)
+
+        # 川の作成
+        stage = self._create_stage_river(stage)
 
         # ステージのpkl化
         with open(PATH_STAGE, mode='wb') as f:
@@ -43,7 +52,7 @@ class Map:
     def _create_stage_sand(self):
         """砂地の作成"""
 
-        stage = np.random.randint(2, size=(STAGE_LENGTH, STAGE_LENGTH))
+        stage = np.random.randint(2, size=(STAGE_LENGTH, STAGE_LENGTH), dtype=np.uint8)
         for i in range(ROOP_SAND_MAKING):
             for r in range(STAGE_LENGTH):
                 for c in range(STAGE_LENGTH):
@@ -51,19 +60,59 @@ class Map:
 
         return stage
 
-    def _create_stage_glass(self, stage):
-        """草原地帯の作成"""
+    def _create_stage_option(self, stage, terrain, width_surround, n_roop):
+        """海&砂以外の地形地帯の作成"""
 
-        # 海岸は砂場を多くするため周囲を砂で囲っておく
-        stage_glass = np.random.randint(GLASS - 1, GLASS + 1, size=(STAGE_LENGTH, STAGE_LENGTH))
-        self._surround(stage_glass, BEACH_AREA, SAND)
-        for i in range(ROOP_GLASS_MAKING):
+        # 海岸線から離れたところに地形作成
+        stage_option = np.random.randint(terrain - 1, terrain + 1, size=(STAGE_LENGTH, STAGE_LENGTH), dtype=np.uint8)
+        self._surround(stage_option, width_surround, 0)
+        
+        for i in range(n_roop):
             for r in range(STAGE_LENGTH):
                 for c in range(STAGE_LENGTH):
-                    stage_glass[r][c] = self._make_terrain(stage_glass, r, c, GLASS)
+                    stage_option[r][c] = self._make_terrain(stage_option, r, c, terrain)
         # 草原をステージに反映
-        index = np.where(stage_glass == GLASS)
-        stage[index] = GLASS
+        index = np.where(stage_option == terrain)
+        stage[index] = terrain
+
+        return stage
+
+    def _create_stage_river(self, stage):
+        """川の作成"""
+
+        # それぞれの川の開始地点を取得
+        the_first_quartile = int(STAGE_LENGTH / 4)
+        half = int(STAGE_LENGTH / 2)
+        candidates =  range(the_first_quartile, the_first_quartile + half)
+        starts_x = np.random.choice(candidates, N_RIVER, replace=False)
+        starts_y = np.random.choice(candidates, N_RIVER, replace=False)
+        start_points = [(x, y) for x, y in zip(starts_x, starts_y)]
+
+        # 開始地点から最も近い海岸に向かって川を伸ばす
+        for start_point in start_points:
+            # 開始地点の位置によってどの方向に川を伸ばすか決定
+            move_candidates = []
+            if start_point[0] < half:
+                move_candidates.append((-1, 0))
+            else:
+                move_candidates.append((1, 0))
+            if start_point[1] < half:
+                move_candidates.append((0, -1))
+            else:
+                move_candidates.append((0, 1))
+
+            # 川を海まで伸ばす
+            stage[start_point[0]][start_point[1]] = RIVER
+            target_x = start_point[0]
+            target_y = start_point[1]
+            while(True):
+                move = np.random.permutation(move_candidates)[0]
+                target_x = target_x + move[0]
+                target_y = target_y + move[1]
+                # 海に流れ着くか他の川に合流した場合は終了
+                if (stage[target_x][target_y] == SEA) or (stage[target_x][target_y] == SEA):
+                    break
+                stage[target_x][target_y] = RIVER
 
         return stage
 
