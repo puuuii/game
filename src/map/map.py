@@ -7,17 +7,13 @@ from pygame.image import load
 from multiprocessing import Manager, Process
 
 
-
 class Map:
     """マップクラス"""
 
     def __init__(self, x, y):
         self.center_x = x
         self.center_y = y
-        start_time = time.time()
         self.stage = self._create_stage()    # 地形データテーブル
-        execution_time = time.time() - start_time
-        print('_create_stage:', execution_time, 's')
         self.trrain_converter = {SEA: load(PATH_SEA).convert(),
                                  SAND: load(PATH_SAND).convert(),
                                  GLASS: load(PATH_GLASS).convert(),
@@ -63,7 +59,7 @@ class Map:
     def _create_stage_sand(self, stage_dict):
         """砂地の作成"""
 
-        stage = np.random.randint(2, size=(STAGE_LENGTH, STAGE_LENGTH), dtype=np.uint8)
+        stage = np.random.randint(2, size=(STAGE_LENGTH, STAGE_LENGTH))
         for i in range(ROOP_SAND_MAKING):
             for r in range(STAGE_LENGTH):
                 for c in range(STAGE_LENGTH):
@@ -75,7 +71,7 @@ class Map:
         """海&砂以外の地形地帯の作成"""
 
         # 海岸線から離れたところに地形作成
-        stage = np.random.randint(terrain - 1, terrain + 1, size=(STAGE_LENGTH, STAGE_LENGTH), dtype=np.uint8)
+        stage = np.random.randint(terrain - 1, terrain + 1, size=(STAGE_LENGTH, STAGE_LENGTH))
         self._surround(stage, width_surround, 0)
 
         for i in range(n_roop):
@@ -110,6 +106,9 @@ class Map:
                 move_candidates.append((0, -1))
             else:
                 move_candidates.append((0, 1))
+
+            # 一様な川にならないようランダム加減に手を加える
+            move_candidates.append(np.random.permutation(move_candidates)[0])
 
             # 川を海まで伸ばす
             stage[start_point[0]][start_point[1]] = RIVER

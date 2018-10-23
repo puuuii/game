@@ -10,8 +10,8 @@ class Manager:
 
     def __init__(self):
         self.screen = pygame.display.set_mode(SCR_RECT.size, DOUBLEBUF | HWSURFACE)
-        self.player = Player(N_CELL_RENDER_X, N_CELL_RENDER_Y)
-        self.map = Map(N_CELL_RENDER_X, N_CELL_RENDER_Y)
+        self.player = Player(int(STAGE_LENGTH/2), int(STAGE_LENGTH/2))
+        self.map = Map(int(STAGE_LENGTH/2), int(STAGE_LENGTH/2))
 
     def mainroop(self):
         """メインループ"""
