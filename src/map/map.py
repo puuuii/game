@@ -10,7 +10,7 @@ from multiprocessing import Manager, Process
 class Map:
     """マップクラス"""
 
-    def __init__(self, x, y):
+    def __init__(self, x=int(STAGE_LENGTH/2), y=int(STAGE_LENGTH/2)):
         self.center_x = x
         self.center_y = y
         self.stage = self._create_stage()    # 地形データテーブル
@@ -210,3 +210,6 @@ class Map:
 
         return True
 
+    def set_centers(self, x, y):
+        self.center_x = x
+        self.center_y = y
