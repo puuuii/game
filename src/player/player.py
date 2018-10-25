@@ -1,4 +1,5 @@
 from src.consts import *
+from src.converter import PlayerImage
 
 
 class Player:

@@ -58,19 +58,18 @@ class Manager:
     def _make_init_nations(self):
         """国家初期化"""
 
+        nations = []
         # すでに国家が存在するならそれを返す
         if os.path.exists(PATH_NATIONS):
             with open(PATH_NATIONS, mode='rb') as f:
-                return pickle.load(f)
-
-        # 国家生成
-        nations = []
-        for i in range(N_NATION):
-            name = ''.join([random.choice(string.ascii_letters + string.digits) for j in range(N_NATION_NAME)])
-            coordinates = (random.randint(0, STAGE_LENGTH), random.randint(0, STAGE_LENGTH))
-            population = random.randint(1, MAX_INIT_POPULATION)
-            parameter = {name: random.randint(1, MAX_INIT_PARAMETER) for name in PARAMS}
-            nations.append(Nation(name, coordinates, population, parameter))
+                nations = pickle.load(f)
+        else:
+            for i in range(N_NATION):
+                name = ''.join([random.choice(string.ascii_letters + string.digits) for j in range(N_NATION_NAME)])
+                coordinates = (random.randint(0, STAGE_LENGTH), random.randint(0, STAGE_LENGTH))
+                population = random.randint(1, MAX_INIT_POPULATION)
+                parameter = {name: random.randint(1, MAX_INIT_PARAMETER) for name in PARAMS}
+                nations.append(Nation(name, coordinates, population, parameter))
 
         # pkl化
         with open(PATH_NATIONS, mode='wb') as f:

@@ -1,7 +1,7 @@
 import numpy as np
 from src.consts import *
 from multiprocessing import Manager, Process
-
+from src.converter import MapImage
 
 class Map:
     """マップクラス"""
