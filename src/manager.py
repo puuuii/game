@@ -1,29 +1,69 @@
 import pygame
 import string
 import random
+import os
+import pickle
 from src.consts import *
 from src.player.player import Player
 from src.map.map import Map
 from src.nation.nation import Nation
 from pygame.locals import *
+from pygame.image import load
 
 
 class Manager:
     """ゲーム管理クラス"""
 
     def __init__(self):
+        # 各種オブジェクト初期化
+        self._make_data_directory()
         self.screen = pygame.display.set_mode(SCR_RECT.size, DOUBLEBUF | HWSURFACE)
-        self.map = Map()
+        self.map = self._make_init_map()
         self.nations = self._make_init_nations()
-        players_nation = random.choice(self.nations)
-        self.player = Player(list(players_nation.get_coordinates()), nation=players_nation)
+        self.player = self._make_init_player(random.choice(self.nations))
 
+        # マップの初期中心位置設定はプレーヤー位置と同位置
         coordinates = self.player.get_coordinates()
         self.map.set_centers(coordinates[X], coordinates[Y])
+
+    def _make_data_directory(self):
+        """dataディレクトリ作成"""
+
+        if not os.path.exists(PATH_DATA_DIR):
+            os.mkdir(PATH_DATA_DIR)
+
+    def _make_init_map(self):
+        """マップ初期化"""
+
+        map = None
+        # すでにマップが存在するならそれを返す
+        if os.path.exists(PATH_STAGE):
+            with open(PATH_STAGE, mode='rb') as f:
+                map = pickle.load(f)
+        else:
+            map = Map()
+        map.set_converter({SEA: load(PATH_SEA).convert(),
+                           SAND: load(PATH_SAND).convert(),
+                           GLASS: load(PATH_GLASS).convert(),
+                           FOREST: load(PATH_FOREST).convert(),
+                           MOUNTAIN: load(PATH_MOUNTAIN).convert(),
+                           RIVER: load(PATH_RIVER).convert()})
+
+        # マップオブジェクトのpkl化
+        with open(PATH_STAGE, mode='wb') as f:
+            pickle.dump(map, f)
+
+        return map
 
     def _make_init_nations(self):
         """国家初期化"""
 
+        # すでに国家が存在するならそれを返す
+        if os.path.exists(PATH_NATIONS):
+            with open(PATH_NATIONS, mode='rb') as f:
+                return pickle.load(f)
+
+        # 国家生成
         nations = []
         for i in range(N_NATION):
             name = ''.join([random.choice(string.ascii_letters + string.digits) for j in range(N_NATION_NAME)])
@@ -32,7 +72,32 @@ class Manager:
             parameter = {name: random.randint(1, MAX_INIT_PARAMETER) for name in PARAMS}
             nations.append(Nation(name, coordinates, population, parameter))
 
+        # pkl化
+        with open(PATH_NATIONS, mode='wb') as f:
+            pickle.dump(nations, f)
+
         return nations
+
+    def _make_init_player(self, nation):
+        """プレーヤー初期化"""
+
+        player = None
+        # すでに国家が存在するならそれを返す
+        if os.path.exists(PATH_PLAYER):
+            with open(PATH_PLAYER, mode='rb') as f:
+                player = pickle.load(f)
+        else:
+            player = Player(list(nation.get_coordinates()), nation=nation)
+        player.set_imglist({DIRECTION_UP: load(PATH_IMAGE_PLAYER_UP).convert_alpha(),
+                            DIRECTION_RIGHT: load(PATH_IMAGE_PLAYER_RIGHT).convert_alpha(),
+                            DIRECTION_DOWN: load(PATH_IMAGE_PLAYER_DOWN).convert_alpha(),
+                            DIRECTION_LEFT: load(PATH_IMAGE_PLAYER_LEFT).convert_alpha()})
+
+        # pkl化
+        with open(PATH_PLAYER, mode='wb') as f:
+            pickle.dump(player, f)
+
+        return player
 
     def mainroop(self):
         """メインループ"""

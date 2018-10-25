@@ -1,9 +1,5 @@
-import pickle
 import numpy as np
-import os
-import time
 from src.consts import *
-from pygame.image import load
 from multiprocessing import Manager, Process
 
 
@@ -14,24 +10,13 @@ class Map:
         self.center_x = x
         self.center_y = y
         self.stage = self._create_stage()    # 地形データテーブル
-        self.trrain_converter = {SEA: load(PATH_SEA).convert(),
-                                 SAND: load(PATH_SAND).convert(),
-                                 GLASS: load(PATH_GLASS).convert(),
-                                 FOREST: load(PATH_FOREST).convert(),
-                                 MOUNTAIN: load(PATH_MOUNTAIN).convert(),
-                                 RIVER: load(PATH_RIVER).convert()}
-                                                            # 地形インデックスを対応する画像オブジェクトに変換
+        self.terrain_converter = None        # 地形インデックスを画像オブジェクトに変換テーブル
 
     def _create_stage(self):
         """ステージ作成"""
 
         m = Manager()
         stage_dict = m.dict()
-
-        # すでにステージが存在するならそれを返す
-        if os.path.exists(PATH_STAGE):
-            with open(PATH_STAGE, mode='rb') as f:
-                return pickle.load(f)
 
         # 各種地形の作成
         jobs = [
@@ -47,12 +32,6 @@ class Map:
 
         # 元ステージに反映
         stage = self._merge_stages(stage_dict.pop(SAND), stage_dict)
-
-        # ステージのpkl化
-        if not os.path.exists(PATH_DATA_DIR):
-            os.mkdir(PATH_DATA_DIR)
-        with open(PATH_STAGE, mode='wb') as f:
-            pickle.dump(stage, f)
 
         return stage
 
@@ -179,7 +158,7 @@ class Map:
                 # 描画設定
                 x = (half_length_of_render_x + c) * PIXCEL_OF_ONE_SIDE - offset_x
                 y = (half_length_of_render_y + r) * PIXCEL_OF_ONE_SIDE - offset_y
-                screen.blit(self.trrain_converter[terrain], (x, y))
+                screen.blit(self.terrain_converter[terrain], (x, y))
 
     def _is_outside_of_stage(self, c, r):
         """ステージ外かどうか判定"""
@@ -213,3 +192,6 @@ class Map:
     def set_centers(self, x, y):
         self.center_x = x
         self.center_y = y
+
+    def set_converter(self, converter):
+        self.terrain_converter = converter
