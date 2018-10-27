@@ -1,6 +1,5 @@
 import random
 from src.consts import *
-from src.converter import NationImage
 
 
 class Nation:
@@ -15,6 +14,15 @@ class Nation:
             self.parameter = {name: value for name, value in zip(PARAMS, random.randint(1, MAX_INIT_PARAMETER))}
         else:
             self.parameter = parameter
+        self.nation_converter = None
+
+    def update(self, screen):
+        """国家更新"""
+
+        # screen.blit(self.img_list[self.direction], (X_PLAYER, Y_PLAYER))
 
     def get_coordinates(self):
         return self.coordinates
+
+    def set_converter(self, converter):
+        self.nation_converter = converter

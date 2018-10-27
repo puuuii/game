@@ -1,7 +1,6 @@
 import numpy as np
 from src.consts import *
 from multiprocessing import Manager, Process
-from src.converter import MapImage
 
 class Map:
     """マップクラス"""
@@ -76,18 +75,19 @@ class Map:
         # 開始地点から最も近い海岸に向かって川を伸ばす
         for start_point in start_points:
             # 開始地点の位置によってどの方向に川を伸ばすか決定
-            move_candidates = []
+            move_candidates = [(-1, 0), (1, 0), (0, -1), (0, 1)]
             if start_point[0] < half:
+                move_candidates.append((-1, 0))
                 move_candidates.append((-1, 0))
             else:
                 move_candidates.append((1, 0))
+                move_candidates.append((1, 0))
             if start_point[1] < half:
+                move_candidates.append((0, -1))
                 move_candidates.append((0, -1))
             else:
                 move_candidates.append((0, 1))
-
-            # 一様な川にならないようランダム加減に手を加える
-            move_candidates.append(np.random.permutation(move_candidates)[0])
+                move_candidates.append((0, 1))
 
             # 川を海まで伸ばす
             stage[start_point[0]][start_point[1]] = RIVER
@@ -97,9 +97,9 @@ class Map:
                 move = np.random.permutation(move_candidates)[0]
                 target_x = target_x + move[0]
                 target_y = target_y + move[1]
-                # 海に流れ着くか他の川に合流した場合は終了
-                if (target_x == -1) or (target_x == STAGE_LENGTH) or (target_y == -1)\
-                        or (target_y == STAGE_LENGTH) or (stage[target_x][target_y] == RIVER):
+                # 海に流れ着くと終了
+                if (target_x == -1) or (target_x == STAGE_LENGTH)\
+                        or (target_y == -1) or (target_y == STAGE_LENGTH):
                     break
                 stage[target_x][target_y] = RIVER
 

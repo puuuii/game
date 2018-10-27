@@ -3,10 +3,10 @@ import string
 import random
 import os
 import pickle
-from src.consts import *
 from src.player.player import Player
 from src.map.map import Map
 from src.nation.nation import Nation
+from src.converter import *
 from pygame.locals import *
 from pygame.image import load
 
@@ -42,12 +42,7 @@ class Manager:
                 map = pickle.load(f)
         else:
             map = Map()
-        map.set_converter({SEA: load(PATH_SEA).convert(),
-                           SAND: load(PATH_SAND).convert(),
-                           GLASS: load(PATH_GLASS).convert(),
-                           FOREST: load(PATH_FOREST).convert(),
-                           MOUNTAIN: load(PATH_MOUNTAIN).convert(),
-                           RIVER: load(PATH_RIVER).convert()})
+        map.set_converter(MapImage().get_converter())
 
         # マップオブジェクトのpkl化
         with open(PATH_STAGE, mode='wb') as f:
@@ -71,6 +66,7 @@ class Manager:
                 parameter = {name: random.randint(1, MAX_INIT_PARAMETER) for name in PARAMS}
                 nations.append(Nation(name, coordinates, population, parameter))
 
+
         # pkl化
         with open(PATH_NATIONS, mode='wb') as f:
             pickle.dump(nations, f)
@@ -87,10 +83,7 @@ class Manager:
                 player = pickle.load(f)
         else:
             player = Player(list(nation.get_coordinates()), nation=nation)
-        player.set_imglist({DIRECTION_UP: load(PATH_IMAGE_PLAYER_UP).convert_alpha(),
-                            DIRECTION_RIGHT: load(PATH_IMAGE_PLAYER_RIGHT).convert_alpha(),
-                            DIRECTION_DOWN: load(PATH_IMAGE_PLAYER_DOWN).convert_alpha(),
-                            DIRECTION_LEFT: load(PATH_IMAGE_PLAYER_LEFT).convert_alpha()})
+        player.set_imglist(PlayerImage().get_converter())
 
         # pkl化
         with open(PATH_PLAYER, mode='wb') as f:
