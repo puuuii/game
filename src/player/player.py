@@ -1,14 +1,16 @@
 from src.consts import *
+from src.parameter.parameter import HumanParameter
 
 
 class Player:
     """プレイヤークラス"""
 
     def __init__(self, coordinates, nation=None):
-        self.coordinates = coordinates   # 座標
-        self.img_list = None             # プレーヤー画像オブジェクト辞書
-        self.direction = DIRECTION_UP    # 現在の方向
-        self.nation = nation             # 所属国家
+        self.coordinates = coordinates      # 座標
+        self.img_list = None                # プレーヤー画像オブジェクト辞書
+        self.direction = DIRECTION_UP       # 現在の方向
+        self.nation = nation                # 所属国家
+        self.parameter = HumanParameter()   # パラメータ
 
     def update(self, screen):
         """プレーヤー更新"""

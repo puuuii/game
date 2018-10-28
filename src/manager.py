@@ -63,8 +63,7 @@ class Manager:
                 name = ''.join([random.choice(string.ascii_letters + string.digits) for j in range(N_NATION_NAME)])
                 coordinates = (random.randint(0, STAGE_LENGTH), random.randint(0, STAGE_LENGTH))
                 population = random.randint(1, MAX_INIT_POPULATION)
-                parameter = {name: random.randint(1, MAX_INIT_PARAMETER) for name in PARAMS}
-                nations.append(Nation(name, coordinates, population, parameter))
+                nations.append(Nation(name, coordinates, population))
 
 
         # pkl化

@@ -1,19 +1,16 @@
-import random
 from src.consts import *
+from src.parameter.parameter import NationParameter
 
 
 class Nation:
     """国家クラス"""
 
-    def __init__(self, name, coordinates=None, population=0, parameter=None):
+    def __init__(self, name, coordinates=None, population=0):
         self.name = name
         self.coordinates = coordinates
         self.population = population
         self.level = 1
-        if parameter == None:
-            self.parameter = {name: value for name, value in zip(PARAMS, random.randint(1, MAX_INIT_PARAMETER))}
-        else:
-            self.parameter = parameter
+        self.parameter = NationParameter()
         self.nation_converter = None
 
     def update(self, screen):
