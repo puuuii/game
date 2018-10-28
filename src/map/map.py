@@ -8,6 +8,8 @@ class Map:
     def __init__(self, x=int(STAGE_LENGTH/2), y=int(STAGE_LENGTH/2)):
         self.center_x = x
         self.center_y = y
+        self.left_top = [0, 0]
+        self.right_bottom = [0, 0]
         self.stage = self._create_stage()    # 地形データテーブル
         self.terrain_converter = None        # 地形インデックスを画像オブジェクトに変換テーブル
 
@@ -138,31 +140,24 @@ class Map:
     def update(self, screen):
         """描画更新"""
 
-        # オフセット算出
-        offset_x = self._calc_offset(self.center_x)
-        offset_y = self._calc_offset(self.center_y)
-
-        # 現在セルを基点においたセル単位で2重ループを回しつつ描画設定
-        half_length_of_render_x = int(N_CELL_RENDER_X/2)
-        half_length_of_render_y = int(N_CELL_RENDER_Y/2)
-        for r in range(-1*half_length_of_render_y, half_length_of_render_y):
-            for c in range(-1*half_length_of_render_x, half_length_of_render_x):
-                # 現在処理中のセル座標がステージ外であれば地形は海
+        # 現在描画中のマップデータを回しつつ描画していく
+        left, top = self.left_top
+        right, bottom = self.right_bottom
+        for r in range(top, bottom):
+            for c in range(left, right):
+                # ステージ外は海描画
                 if self._is_outside_of_stage(c, r):
                     terrain = SEA
                 else:
-                    idx_x = int(self.center_x + c)
-                    idx_y = int(self.center_y + r)
-                    terrain = self.stage[idx_x][idx_y]
+                    terrain = self.stage[c][r]
+                x = (c - left) * PIXCEL_OF_ONE_SIDE
+                y = (r - top) * PIXCEL_OF_ONE_SIDE
 
-                # 描画設定
-                x = (half_length_of_render_x + c) * PIXCEL_OF_ONE_SIDE - offset_x
-                y = (half_length_of_render_y + r) * PIXCEL_OF_ONE_SIDE - offset_y
                 screen.blit(self.terrain_converter[terrain], (x, y))
 
     def _is_outside_of_stage(self, c, r):
         """ステージ外かどうか判定"""
-        result = not ((0 < (self.center_x + c) < STAGE_LENGTH) and (0 < (self.center_y + r) < STAGE_LENGTH))
+        result = not ((0 < c < STAGE_LENGTH) and (0 < r < STAGE_LENGTH))
         return result
 
     def _calc_offset(self, value):
@@ -180,14 +175,23 @@ class Map:
         target_y = self.center_y + move_value[1]
 
         # 水辺は移動不可
-        if (self.stage[target_x][target_y] == SEA)\
-                or (self.stage[target_x][target_y] == RIVER):
+        terrain = self.stage[target_x][target_y]
+        if (terrain == SEA) or (terrain == RIVER):
             return False
 
         self.center_x = target_x
         self.center_y = target_y
 
+        # 移動処理と同時に現在描画中のセル範囲も設定
+        self.calc_limits()
+
         return True
+
+    def calc_limits(self):
+        """セル単位で現在描画中の座標算出"""
+
+        self.left_top = [self.center_x - int(WIDTH_IN_CELL / 2), self.center_y - int(HEIGHT_IN_CELL / 2)]
+        self.right_bottom = [self.center_x + int(WIDTH_IN_CELL / 2), self.center_y + int(HEIGHT_IN_CELL / 2)]
 
     def set_centers(self, x, y):
         self.center_x = x
@@ -195,3 +199,11 @@ class Map:
 
     def set_converter(self, converter):
         self.terrain_converter = converter
+
+    def get_left_top(self):
+
+        return self.left_top
+
+    def get_right_buttom(self):
+
+        return self.right_bottom

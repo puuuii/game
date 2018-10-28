@@ -8,7 +8,6 @@ from src.map.map import Map
 from src.nation.nation import Nation
 from src.converter import *
 from pygame.locals import *
-from pygame.image import load
 
 
 class Manager:
@@ -25,6 +24,7 @@ class Manager:
         # マップの初期中心位置設定はプレーヤー位置と同位置
         coordinates = self.player.get_coordinates()
         self.map.set_centers(coordinates[X], coordinates[Y])
+        self.map.calc_limits()
 
     def _make_data_directory(self):
         """dataディレクトリ作成"""
@@ -64,7 +64,7 @@ class Manager:
                 coordinates = (random.randint(0, STAGE_LENGTH), random.randint(0, STAGE_LENGTH))
                 population = random.randint(1, MAX_INIT_POPULATION)
                 nations.append(Nation(name, coordinates, population))
-
+        [nation.set_converter(NationImage().get_converter()) for nation in nations]
 
         # pkl化
         with open(PATH_NATIONS, mode='wb') as f:
@@ -105,6 +105,8 @@ class Manager:
 
             # 各種更新更新
             self.map.update(self.screen)
+            [nation.update(self.screen, self.player.get_coordinates(), self.map.get_left_top(), self.map.get_right_buttom())
+             for nation in self.nations]
             self.player.update(self.screen)
 
             # 画面描画
