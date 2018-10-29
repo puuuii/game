@@ -9,7 +9,7 @@ class Nation:
         self.name = name
         self.coordinates = coordinates
         self.population = population
-        self.level = NATION_LEVEL_CASTLE
+        self.level = NATION_LEVEL_VILLAGE
         self.parameter = NationParameter()
         self.nation_converter = None
 
