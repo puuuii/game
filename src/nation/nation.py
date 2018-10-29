@@ -13,7 +13,7 @@ class Nation:
         self.parameter = NationParameter()
         self.nation_converter = None
 
-    def update(self, screen, center_point, left_top, right_bottom):
+    def update(self, screen, left_top, right_bottom):
         """国家更新"""
 
         # 国家位置をx, yにばらして確保
