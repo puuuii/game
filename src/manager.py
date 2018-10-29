@@ -105,7 +105,7 @@ class Manager:
 
             # 各種更新更新
             self.map.update(self.screen)
-            [nation.update(self.screen, self.player.get_coordinates(), self.map.get_left_top(), self.map.get_right_buttom())
+            [nation.update(self.screen, self.map.get_left_top(), self.map.get_right_buttom())
              for nation in self.nations]
             self.player.update(self.screen)
 
