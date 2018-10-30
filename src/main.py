@@ -1,5 +1,6 @@
 import pygame
-from src.manager import Manager
+
+from src.manager import GameManager
 
 
 def main():
@@ -8,7 +9,7 @@ def main():
     # ゲーム全体設定
     pygame.display.set_caption("game")
 
-    manager = Manager()
+    manager = GameManager()
     manager.mainroop()
 
 

@@ -1,16 +1,20 @@
-import pygame
-import string
-import random
 import os
 import pickle
-from src.player.player import Player
-from src.map.map import Map
-from src.nation.nation import Nation
-from src.converter import *
+import random
+import string
+import time
+from multiprocessing import Manager, Process
+
+import pygame
 from pygame.locals import *
 
+from src.converter import *
+from src.map.map import Map
+from src.nation.nation import Nation
+from src.player.player import Player
 
-class Manager:
+
+class GameManager:
     """ゲーム管理クラス"""
 
     def __init__(self):
@@ -20,11 +24,16 @@ class Manager:
         self.map = self._make_init_map()
         self.nations = self._make_init_nations()
         self.player = self._make_init_player(random.choice(self.nations))
+        m = Manager()
+        self.timer = m.dict()
 
         # マップの初期中心位置設定はプレーヤー位置と同位置
         coordinates = self.player.get_coordinates()
         self.map.set_centers(coordinates[X], coordinates[Y])
         self.map.calc_limits()
+
+        # タイマー開始
+        self.start_timer()
 
     def _make_data_directory(self):
         """dataディレクトリ作成"""
@@ -158,3 +167,56 @@ class Manager:
         for move_value in move_value_list:
             if self.map.move(move_value):
                 self.player.move(move_value)
+
+    def start_timer(self):
+        """タイマー開始"""
+
+        # すでにマップが存在するならそれを返す
+        if os.path.exists(PATH_TIMER):
+            with open(PATH_TIMER, mode='rb') as f:
+                timer = pickle.load(f)
+                self.timer[MINUTE] = timer[MINUTE]
+                self.timer[HOUR] = timer[HOUR]
+                self.timer[DAY] = timer[DAY]
+                self.timer[MONTH] = timer[MONTH]
+                self.timer[YEAR] = timer[YEAR]
+        # ない場合は初期化
+        else:
+            self.timer[MINUTE] = 0
+            self.timer[HOUR] = 6
+            self.timer[DAY] = 1
+            self.timer[MONTH] = APR
+            self.timer[YEAR] = 1
+
+        job = Process(target=self.count_timer)
+        job.start()
+
+    def count_timer(self):
+        """時間計測"""
+
+        while True:
+            time.sleep(1)
+            self.timer[MINUTE] += 1
+
+            if self.timer[MINUTE] >= 60:
+                self.timer[MINUTE] = 0
+                self.timer[HOUR] += 1
+
+            if self.timer[HOUR] >= 24:
+                self.timer[HOUR] = 0
+                self.timer[DAY] += 1
+
+            if self.timer[DAY] > 28:
+                self.timer[DAY] = 0
+                self.timer[MONTH] += 1
+
+            if self.timer[MONTH] > DEC:
+                self.timer[MONTH] = JAN
+                self.timer[YEAR] += 1
+
+            # マップオブジェクトのpkl化
+            with open(PATH_TIMER, mode='wb') as f:
+                timer = {MINUTE: self.timer[MINUTE], HOUR: self.timer[HOUR], DAY: self.timer[DAY],
+                         MONTH: self.timer[MONTH], YEAR: self.timer[YEAR]}
+                pickle.dump(timer, f)
+
