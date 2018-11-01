@@ -6,7 +6,6 @@ import time
 from multiprocessing import Manager, Process
 
 import pygame
-from pygame.locals import *
 
 from src.converter import *
 from src.map.map import Map
@@ -26,6 +25,7 @@ class GameManager:
         self.player = self._make_init_player(random.choice(self.nations))
         m = Manager()
         self.timer = m.dict()
+        self.font_time = pygame.font.Font(FONT_GOTHIC, STRING_SIZE_TIME)
 
         # マップの初期中心位置設定はプレーヤー位置と同位置
         coordinates = self.player.get_coordinates()
@@ -112,11 +112,12 @@ class GameManager:
             # キーハンドル
             self.handle_key()
 
-            # 各種更新更新
+            # 各種更新
             self.map.update(self.screen)
             [nation.update(self.screen, self.map.get_left_top(), self.map.get_right_buttom())
              for nation in self.nations]
             self.player.update(self.screen)
+            self.update_time()
 
             # 画面描画
             pygame.display.update()
@@ -182,8 +183,8 @@ class GameManager:
                 self.timer[YEAR] = timer[YEAR]
         # ない場合は初期化
         else:
-            self.timer[MINUTE] = 0
-            self.timer[HOUR] = 6
+            self.timer[MINUTE] = 55
+            self.timer[HOUR] = 17
             self.timer[DAY] = 1
             self.timer[MONTH] = APR
             self.timer[YEAR] = 1
@@ -220,3 +221,53 @@ class GameManager:
                          MONTH: self.timer[MONTH], YEAR: self.timer[YEAR]}
                 pickle.dump(timer, f)
 
+    def timer_to_string(self):
+        """タイマー変数の内容を表示用文字列に変換"""
+
+        string = str(self.timer[YEAR]).zfill(2) + '年目 '\
+                 + str(self.timer[MONTH]).zfill(2) + '月 '\
+                 + str(self.timer[DAY]).zfill(2) + '日 '\
+                 + str(self.timer[HOUR]).zfill(2) + ' : '\
+                 + str(self.timer[MINUTE]).zfill(2)
+        return string
+
+    def update_time(self):
+        """時間表記&夕方&夜描画処理更新"""
+
+        # 夕方&夜処理
+        rect_evening = pygame.Surface((640, 480), SRCALPHA, 32)
+        rect_night = pygame.Surface((640, 480), SRCALPHA, 32)
+        minute = self.timer[MINUTE]
+        hour = self.timer[HOUR]
+
+
+        # 夕方は4時〜5時の間で濃くなる
+        depth_evening = 0
+        if 16 <= hour <= 17:
+            # 最大値を255に補正
+            depth_evening = int((((hour - 16) + (minute / 60)) / 2) * 255)
+        # 夕方は6時〜9時の間で薄くなる
+        elif 18 <= hour <= 21:
+            # 最大値を255に補正
+            depth_evening = int((((21 - hour) + (1 - (minute / 60))) / 4) * 255)
+        # 夕方色を作成&設定
+        color_evening = list(COLOR_ORANGE) + [int(depth_evening / 2)]
+        rect_evening.fill(color_evening)
+        self.screen.blit(rect_evening, (0, 0))
+
+        # 夜は6時〜9時の間で濃くなる
+        depth_night = 0
+        if 18 <= hour <= 21:
+            # 最大値を255に補正
+            depth_night = int((((hour - 18) + (minute / 60)) / 4) * 255)
+        # 夜は10時〜朝4時まで最大の濃さ
+        if 22 <= hour <= 23 or 0 <= hour <= 4:
+            depth_night = 255
+        # 夜色を作成&設定
+        color_night = list(COLOR_JET_BLACK) + [int(depth_night / 1.25)]
+        rect_night.fill(color_night)
+        self.screen.blit(rect_night, (0, 0))
+
+        # 時間表記
+        string_time = self.font_time.render(self.timer_to_string(), True, COLOR_TIME)
+        self.screen.blit(string_time, START_POINT_STRING_TIME)

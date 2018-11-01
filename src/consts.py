@@ -23,6 +23,15 @@ SEP = 9
 OCT = 10
 NOV = 11
 DEC = 12
+FONT_GOTHIC = '../font/font_1_honokamarugo_1.1.ttf'
+FONT_MINCHO = '../font/font_1_honokamin.ttf'
+COLOR_MAX = 255
+COLOR_WHITE = (0, 0, 0)
+COLOR_ORANGE = (255, 153, 0)
+COLOR_JET_BLACK = (13, 0, 21)
+COLOR_TIME = COLOR_WHITE
+STRING_SIZE_TIME = 15
+START_POINT_STRING_TIME = (SCR_RECT.width-170, 10)
 
 # マップ系
 STAGE_LENGTH = 2 ** 9

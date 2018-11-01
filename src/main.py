@@ -7,8 +7,8 @@ def main():
     """メイン"""
 
     # ゲーム全体設定
+    pygame.init()
     pygame.display.set_caption("game")
-
     manager = GameManager()
     manager.mainroop()
 
