@@ -1,3 +1,5 @@
+import numpy as np
+
 from src.consts import *
 from src.parameter.parameter import NationParameter
 
@@ -12,6 +14,7 @@ class Nation:
         self.level = NATION_LEVEL_VILLAGE
         self.parameter = NationParameter()
         self.nation_converter = None
+        self.stage = self._create_stage()
 
     def update(self, screen, left_top, right_bottom):
         """国家更新"""
@@ -40,6 +43,14 @@ class Nation:
             coordinates = (x - PIXCEL_OF_ONE_SIDE, y - PIXCEL_OF_ONE_SIDE*2)
 
         screen.blit(self.nation_converter[self.level], coordinates)
+
+    def _create_stage(self):
+        """国家内のステージ作成"""
+
+        length = 2 * (self.level + 4)
+        stage = np.zeros((length, length))
+
+        return stage
 
     def get_coordinates(self):
         return self.coordinates

@@ -95,6 +95,13 @@ PATH_IMAGE_VILLAGE = '../img/village.png'
 PATH_IMAGE_TOWN = '../img/town.png'
 PATH_IMAGE_CASTLE_TOWN = '../img/castle_town.png'
 PATH_IMAGE_CASTLE = '../img/castle.png'
+NATION_SAND = 0
+NATION_GLASS = 1
+NATION_TREE = 2
+NATION_WATER = 3
+NATION_NOT_ENTER = 4
+NATION_HOUSE = 5
+NATION_HOUSE_DOOR = 6
 
 # パラメータ系
 MAX_INIT_PARAMETER = 5

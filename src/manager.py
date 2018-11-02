@@ -183,8 +183,8 @@ class GameManager:
                 self.timer[YEAR] = timer[YEAR]
         # ない場合は初期化
         else:
-            self.timer[MINUTE] = 55
-            self.timer[HOUR] = 17
+            self.timer[MINUTE] = 0
+            self.timer[HOUR] = 6
             self.timer[DAY] = 1
             self.timer[MONTH] = APR
             self.timer[YEAR] = 1
@@ -239,7 +239,6 @@ class GameManager:
         rect_night = pygame.Surface((640, 480), SRCALPHA, 32)
         minute = self.timer[MINUTE]
         hour = self.timer[HOUR]
-
 
         # 夕方は4時〜5時の間で濃くなる
         depth_evening = 0
